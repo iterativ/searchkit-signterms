@@ -1,9 +1,12 @@
+// export * from "./DateHistogramBucket"
+// export * from "./DateRangeFilter"
+// export * from "./DateRangeAccessor"
+export * from "./SignTermsFilter"
+
 import React, {Component} from 'react'
 
-export default class extends Component {
+export class SignTermsDemo extends Component {
   render() {
-    return <div>
-      <h2>Welcome to React components</h2>
-    </div>
+    return <div>SignTerms galore!</div>
   }
 }

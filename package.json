@@ -1,7 +1,7 @@
 {
   "name": "searchkit-signterms",
-  "version": "1.0.0",
-  "description": "searchkit-signterms React component",
+  "version": "0.1.0",
+  "description": "searchkit-signterms React component for displaying significant terms",
   "main": "lib/index.js",
   "module": "es/index.js",
   "files": [
@@ -18,7 +18,9 @@
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server"
   },
-  "dependencies": {},
+  "dependencies": {
+    "searchkit": "^2.1.1"
+  },
   "peerDependencies": {
     "react": "15.x"
   },
@@ -27,8 +29,8 @@
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
   },
-  "author": "",
-  "homepage": "",
+  "author": "pawel.kowalski@iterativ.ch",
+  "homepage": "https://www.iterativ.ch",
   "license": "MIT",
   "repository": "",
   "keywords": [

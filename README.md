@@ -14,3 +14,13 @@ Describe searchkit-signterms here.
 
 [coveralls-badge]: https://img.shields.io/coveralls/user/repo/master.png?style=flat-square
 [coveralls]: https://coveralls.io/github/user/repo
+
+
+# Build searchkit-signterms
+
+> nwb build
+
+# Start demo app
+
+> npm start
+

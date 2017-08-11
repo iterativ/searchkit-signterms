@@ -7,7 +7,6 @@ class Demo extends Component {
   render() {
     return <div>
       <h1>searchkit-signterms Demo</h1>
-      <Example/>
     </div>
   }
 }
