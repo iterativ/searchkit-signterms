@@ -4,15 +4,20 @@ import * as PropTypes from "prop-types";
 import {
 	SearchkitComponent,
 	SearchkitComponentProps,
-	CheckboxFilterAccessor,
+	NestedFacetAccessor,
+	FacetAccessor, 
+	HierarchicalFacetAccessor,
 	ReactComponentType,
 	renderComponent,
 	Panel,
 	FacetFilterPropTypes,
 	CheckboxItemList,
-	FacetAccessor, ISizeOption,
-	FastClick, FieldOptions
+	ISizeOption,
+	FastClick, 
+	FieldOptions
 } from "searchkit"
+
+import { SignTermsAccessor } from "./SignTermsAccessor"
 
 const defaults = require("lodash/defaults")
 const identity = require("lodash/identity")
@@ -24,115 +29,87 @@ const get = require("lodash/get")
 
 export class SignTermsFilter extends SearchkitComponent {
 
-	static propTypes = FacetFilterPropTypes
-
 	static defaultProps = {
-		listComponent: CheckboxItemList,
-		containerComponent: Panel,
-		size: 50,
-		collapsable: false,
-		showCount: true,
-		showMore: true,
-		bucketsTransform: identity
+		countFormatter: identity,
+		size: 20
 	}
-
-	constructor(props) {
-		super(props)
-		this.toggleViewMoreOption = this.toggleViewMoreOption.bind(this)
-	}
-	getAccessorOptions() {
-		const {
-		field, id, operator, title, include, exclude,
-			size, translations, orderKey, orderDirection, fieldOptions
-	  } = this.props
-		return {
-			id, operator, title, size, include, exclude, field,
-			translations, orderKey, orderDirection, fieldOptions
-		}
-	}
-	defineAccessor() {
-		return new FacetAccessor(
-			this.props.field, this.getAccessorOptions())
-	}
+	static propTypes = defaults({
+		id: PropTypes.string.isRequired,
+		fields: PropTypes.arrayOf(PropTypes.string).isRequired,
+		title: PropTypes.string.isRequired,
+		orderKey: PropTypes.string,
+		orderDirection: PropTypes.oneOf(["asc", "desc"]),
+		countFormatter: PropTypes.func
+	}, SearchkitComponent.propTypes)
 
 	defineBEMBlocks() {
-		var blockName = this.props.mod || "sk-refinement-list"
+		var blockClass = this.props.mod || "sk-hierarchical-menu";
 		return {
-			container: blockName,
-			option: `${blockName}-option`
-		}
+			container: `${blockClass}-list`,
+			option: `${blockClass}-option`
+		};
 	}
 
-	componentDidUpdate(prevProps) {
-		if (prevProps.operator != this.props.operator) {
-			this.accessor.options.operator = this.props.operator
-			this.searchkit.performSearch()
-		}
+	defineAccessor() {
+		const { id, title, fields, size, orderKey, orderDirection } = this.props
+		return new SignTermsAccessor(id, {
+			id, title, fields, size, orderKey, orderDirection
+		})
 	}
 
-	toggleFilter(key) {
-		this.accessor.state = this.accessor.state.toggle(key)
+	addFilter(option, level) {
+		this.accessor.state = this.accessor.state.toggleLevel(level, option.key)
 		this.searchkit.performSearch()
 	}
 
-	setFilters(keys) {
-		this.accessor.state = this.accessor.state.setValue(keys)
-		this.searchkit.performSearch()
+	renderOption(level, option) {
+		var block = this.bemBlocks.option
+		const { countFormatter } = this.props
+		var className = block().state({
+			selected: this.accessor.state.contains(level, option.key)
+		})
+
+		return (
+			<div key={option.key}>
+				<FastClick handler={this.addFilter.bind(this, option, level)}>
+					<div className={className}>
+						<div className={block("text")}>{this.translate(option.key)}</div>
+						<div className={block("count")}>{countFormatter(option.doc_count)}</div>
+					</div>
+				</FastClick>
+				{(() => {
+					if (this.accessor.resultsState.contains(level, option.key)) {
+						return this.renderOptions(level + 1);
+					}
+				})()}
+			</div>
+		)
 	}
 
-	toggleViewMoreOption(option) {
-		this.accessor.setViewMoreOption(option);
-		this.searchkit.performSearch()
-	}
-
-	hasOptions() {
-		return this.accessor.getBuckets().length != 0
-	}
-
-	getSelectedItems() {
-		return this.accessor.state.getValue()
-	}
-
-	getItems() {
-		return this.props.bucketsTransform(this.accessor.getBuckets())
+	renderOptions(level) {
+		let block = this.bemBlocks.container;
+		return (
+			<div className={block("hierarchical-options")}>
+				{map(this.accessor.getBuckets(level), this.renderOption.bind(this, level))}
+			</div>
+		)
 	}
 
 	render() {
-		const { listComponent, containerComponent, showCount, title, id, countFormatter } = this.props
-		return renderComponent(containerComponent, {
-			title,
-			className: id ? `filter--${id}` : undefined,
-			disabled: !this.hasOptions()
-		}, [
-				renderComponent(listComponent, {
-					key: "listComponent",
-					items: this.getItems(),
-					itemComponent: this.props.itemComponent,
-					selectedItems: this.getSelectedItems(),
-					toggleItem: this.toggleFilter.bind(this),
-					setItems: this.setFilters.bind(this),
-					docCount: this.accessor.getDocCount(),
-					showCount,
-					translate: this.translate,
-					countFormatter
-				}),
-				this.renderShowMore()
-			]);
-	}
-
-	renderShowMore() {
-		const option = this.accessor.getMoreSizeOption()
-
-		if (!option || !this.props.showMore) {
-			return null;
-		}
-
+		let block = this.bemBlocks.container;
+		let classname = block()
+			.mix(`filter--${this.props.id}`)
+			.state({
+				disabled: this.accessor.getBuckets(0).length == 0
+			})
 		return (
-			<FastClick handler={() => this.toggleViewMoreOption(option)} key="showMore">
-				<div data-qa="show-more" className={this.bemBlocks.container("view-more-action")}>
-					{this.translate(option.label)}
+			<div className={classname}>
+				<div className={block("header")}>{this.props.title}</div>
+				<div className={block("root")}>
+					{this.renderOptions(0)}
 				</div>
-			</FastClick>
+			</div>
 		)
 	}
+
 }
