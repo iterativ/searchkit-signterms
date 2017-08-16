@@ -19,7 +19,6 @@ export class AccessorBase extends Accessor {
     }
 
     onStateChange(oldState) {
-
     }
 
     fromQueryObject(ob) {

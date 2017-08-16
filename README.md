@@ -20,7 +20,7 @@ Describe searchkit-signterms here.
 
 > nwb build
 
-# Start demo app
+# Publish to npm registry
 
-> npm start
+> 
 

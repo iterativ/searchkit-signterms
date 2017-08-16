@@ -113,7 +113,7 @@ export class SignTermsAccessor extends AccessorBase {
                     bucketType(field, field, omitBy({
                         size: this.options.size, order: this.getOrder()
                     }, isUndefined))
-                )    
+                )
             }
         }));
 
