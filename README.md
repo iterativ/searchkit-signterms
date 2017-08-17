@@ -4,7 +4,7 @@
 [![npm package][npm-badge]][npm]
 [![Coveralls][coveralls-badge]][coveralls]
 
-searchkit-signterms are searchkit Filters which use the significant_terms aggregations instead of the terms aggregation. 
+`searchkit-signterms` are `searchkit` Filters which use the `significant_terms` aggregations instead of the `terms` aggregation. This component is experimental and its purpose is to collect some ideas on how to implement reusable `signterms` components for `searchkit`.
 
 [build-badge]: https://img.shields.io/travis/user/repo/master.png?style=flat-square
 [build]: https://travis-ci.org/user/repo
